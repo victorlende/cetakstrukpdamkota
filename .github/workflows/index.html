@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Struk PDAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .upload-container {
+            background: white;
+            padding: 30px;
+            /* border-radius: 12px; */
+            /* box-shadow: 0 4px 20px rgba(0,0,0,0.05); */
+            margin-bottom: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #eaeaea;
+            transition: transform 0.2s ease;
+        }
+
+        .upload-container h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        select#inputMethod {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 300px;
+            font-size: 14px;
+            color: #444;
+            background-color: #fff;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select#inputMethod:focus {
+            border-color: #007bff;
+        }
+
+        #uploadSection, #pasteSection {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        textarea#jsonInput {
+            width: 100%;
+            height: 120px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            resize: vertical;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        textarea#jsonInput:focus {
+            border-color: #28a745;
+        }
+        
+        input[type="file"] {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 400px;
+        }
+
+        .receipt-container {
+            background: white;
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            /* box-shadow: 0 0 20px rgba(0,0,0,0.1); */
+            display: none;
+            color: #000;
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+
+        .logo-left img, .logo-right img {
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .header-text {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .header-text h2 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+
+        .receipt-grid {
+            display: grid;
+            grid-template-columns: 120px 10px 1fr 100px 10px 1fr;
+            gap: 5px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            font-size: 12px;
+        }
+
+        .label {
+            font-weight: 500;
+        }
+
+        .separator {
+            text-align: center;
+        }
+
+        .value {
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+            border-top: 1px solid #eee;
+            margin-top: 5px;
+            padding-top: 5px;
+            display: flex;
+            font-size: 12px;
+        }
+        
+        .full-width .label {
+            width: 120px;
+            flex-shrink: 0;
+        }
+        
+        .full-width .value {
+            flex-grow: 1;
+            padding-left: 15px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn-print {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        .btn-print:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="upload-container">
+        <h2>Cetak Struk Pembayaran Tagihan PDAM Kota Kupang</h2>
+        
+        <div style="text-align: left; background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #555;">
+            <strong>Cara Penggunaan:</strong>
+            <ol style="margin: 5px 0 0 20px; padding: 0;">
+                <li>Buka aplikasi REPROS, pada halaman rekon FTR - PSW klik JSON Data yang ada di sebelah kanan atas halaman. Copy text json.</li>
+                <li>Jika Anda memiliki file JSON, pilih metode <b>"Upload File JSON"</b> dan upload file tersebut.</li>
+                <li>Jika mengcopy text, pilih metode <b>"Paste Text JSON"</b> pada dropdown di bawah, lalu paste text ke dalam kotak input.</li>
+                <li>Klik tombol <b>"Generate Struk"</b> untuk menampilkan struk pembayaran.</li>
+                <li>Periksa data yang ditampilkan. Jika sudah sesuai, klik tombol <b>"Download PDF"</b> untuk menyimpan struk.</li>
+            </ol>
+        </div>
+        
+        <select id="inputMethod" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; margin-bottom: 15px; width: 200px;">
+            <option value="">-- Pilih Metode Input --</option>
+            <option value="upload">Upload File JSON</option>
+            <option value="paste">Paste Text JSON</option>
+        </select>
+
+        <div id="uploadSection" style="display: none; margin-top: 15px;">
+            <input type="file" id="jsonFile" accept=".json">
+        </div>
+        
+        <div id="pasteSection" style="display: none; margin-top: 15px;">
+            <textarea id="jsonInput" placeholder="Paste text JSON di sini..." style="width: 100%; height: 100px; margin-bottom: 10px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-family: monospace; font-size: 12px;"></textarea>
+            <br>
+            <button class="btn-print" onclick="generateFromText()" style="background: #28a745;">Generate Struk</button>
+        </div>
+
+        <div id="selectionContainer" style="display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+            <label for="transactionSelect" style="font-weight: bold; display: block; margin-bottom: 5px;">Pilih Data Pelanggan:</label>
+            <select id="transactionSelect" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 100%; max-width: 400px;">
+                <!-- Options will be populated via JS -->
+            </select>
+        </div>
+    </div>
+
+    <div class="receipt-container" id="receipt">
+        <div class="receipt-header">
+            <div class="logo-left">
+                <img src="pdamkotakupang.jpg" width="60" alt="PDAM Logo">
+            </div>
+            <div class="header-text">
+                <h2>PERUSAHAAN DAERAH AIR MINUM KOTA KUPANG</h2>
+                <p>ALAMAT : JL. S. K. LERIK, KECAMATAN KELAPA LIMA</p>
+                <p>KOTA : KUPANG - 85228</p>
+            </div>
+            <div class="logo-right">
+                <img src="Logo_Bank_NTT.png" width="60" alt="Logo">
+            </div>
+        </div>
+
+        <div class="receipt-grid">
+            <!-- Row 1 -->
+            <div class="label">NOMOR BUKTI</div>
+            <div class="separator">:</div>
+            <div class="value" id="no_bukti"></div>
+            <div class="label">TGL BYR</div>
+            <div class="separator">:</div>
+            <div class="value" id="tgl_byr"></div>
+
+            <!-- Row 2 -->
+            <div class="label">ID PELANGGAN</div>
+            <div class="separator">:</div>
+            <div class="value" id="id_pelanggan"></div>
+            <div class="label">TAGIHAN</div>
+            <div class="separator">:</div>
+            <div class="value" id="tagihan"></div>
+
+            <!-- Row 3 -->
+            <div class="label">NAMA</div>
+            <div class="separator">:</div>
+            <div class="value" id="nama"></div>
+            <div class="label">DENDA</div>
+            <div class="separator">:</div>
+            <div class="value" id="denda">Rp. 0,-</div>
+
+            <!-- Row 4 -->
+            <div class="label">KD TARIF</div>
+            <div class="separator">:</div>
+            <div class="value" id="kd_tarif"></div>
+            <div class="label">METERAI</div>
+            <div class="separator">:</div>
+            <div class="value" id="meterai">Rp. 0,-</div>
+
+            <!-- Row 5 -->
+            <div class="label">AWAL/AKHIR</div>
+            <div class="separator">:</div>
+            <div class="value" id="awal_akhir"></div>
+            <div class="label">KEBERSIHAN</div>
+            <div class="separator">:</div>
+            <div class="value" id="kebersihan">Rp. 0,-</div>
+
+            <!-- Row 6 -->
+            <div class="label">AIR DIPAKAI</div>
+            <div class="separator">:</div>
+            <div class="value" id="air_dipakai"></div>
+            <div class="label">ADMIN BANK</div>
+            <div class="separator">:</div>
+            <div class="value" id="admin_bank"></div>
+
+            <!-- Row 7 -->
+            <div class="label">BULAN TAG.</div>
+            <div class="separator">:</div>
+            <div class="value" id="bulan_tag"></div>
+            <div class="label">TOTAL BAYAR</div>
+            <div class="separator">:</div>
+            <div class="value" id="total_bayar"></div>
+
+            <!-- Row 8 -->
+            <div class="label"></div>
+            <div class="separator"></div>
+            <div class="value"></div>
+            <div class="label">TELLER ID</div>
+            <div class="separator">:</div>
+            <div class="value" id="teller_id"></div>
+        </div>
+
+        <div class="full-width">
+            <div class="label">TERBILANG</div>
+            <div class="value" id="terbilang"></div>
+        </div>
+
+        <div class="footer">
+            PDAM KOTA KUPANG MENYATAKAN BUKTI BAYAR INI MERUPAKAN BUKTI PEMBAYARAN YANG SAH
+        </div>
+        
+        <div class="btn-container">
+             <button class="btn-print" onclick="downloadPDF()" style="background: #dc3545;">Download PDF</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        let currentTransactions = [];
+
+        document.getElementById('inputMethod').addEventListener('change', function() {
+            const method = this.value;
+            document.getElementById('uploadSection').style.display = method === 'upload' ? 'block' : 'none';
+            document.getElementById('pasteSection').style.display = (method === 'paste' || method === 'paste_multi') ? 'block' : 'none';
+            document.getElementById('selectionContainer').style.display = 'none';
+            document.getElementById('receipt').style.display = 'none';
+        });
+
+        document.getElementById('jsonFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    renderReceipt(data);
+                } catch (error) {
+                    alert('Error parsing JSON file: ' + error.message);
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('transactionSelect').addEventListener('change', function() {
+            const index = this.value;
+            if (index !== "" && currentTransactions[index]) {
+                renderReceipt(currentTransactions[index]);
+            }
+        });
+
+        function generateFromText() {
+            const jsonText = document.getElementById('jsonInput').value;
+            if (!jsonText.trim()) {
+                alert("Silakan paste text JSON terlebih dahulu.");
+                return;
+            }
+            try {
+                const data = JSON.parse(jsonText);
+                
+                // Check for xdatatemp (Bulk Data)
+                if (data.xdatatemp && Array.isArray(data.xdatatemp)) {
+                    currentTransactions = data.xdatatemp;
+                    const select = document.getElementById('transactionSelect');
+                    select.innerHTML = '<option value="">-- Pilih Data --</option>';
+                    
+                    currentTransactions.forEach((item, index) => {
+                        let label = `Data #${index + 1}`;
+                        if (item.Wnarrativepsw1) label += ` - ID: ${item.Wnarrativepsw1}`;
+                        if (item.Wtxamount) label += ` - Rp ${parseInt(item.Wtxamount).toLocaleString('id-ID')}`;
+                        
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = label;
+                        select.appendChild(option);
+                    });
+                    
+                    document.getElementById('selectionContainer').style.display = 'block';
+                    
+                    // Automatically select and render the first item
+                    if (currentTransactions.length > 0) {
+                        select.value = 0;
+                        renderReceipt(currentTransactions[0]);
+                    }
+                } else {
+                    // Single Data
+                    document.getElementById('selectionContainer').style.display = 'none';
+                    renderReceipt(data);
+                }
+            } catch (error) {
+                alert('Error parsing JSON text: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        function formatCurrency(amount) {
+            return 'Rp. ' + parseInt(amount).toLocaleString('id-ID') + ',-';
+        }
+        
+        function terbilang(angka) {
+            const bil = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+            let result = "";
+            
+            if (angka < 12) {
+                result = " " + bil[angka];
+            } else if (angka < 20) {
+                result = terbilang(angka - 10) + " Belas";
+            } else if (angka < 100) {
+                result = terbilang(Math.floor(angka / 10)) + " Puluh" + terbilang(angka % 10);
+            } else if (angka < 200) {
+                result = " Seratus" + terbilang(angka - 100);
+            } else if (angka < 1000) {
+                result = terbilang(Math.floor(angka / 100)) + " Ratus" + terbilang(angka % 100);
+            } else if (angka < 2000) {
+                result = " Seribu" + terbilang(angka - 1000);
+            } else if (angka < 1000000) {
+                result = terbilang(Math.floor(angka / 1000)) + " Ribu" + terbilang(angka % 1000);
+            } else if (angka < 1000000000) {
+                result = terbilang(Math.floor(angka / 1000000)) + " Juta" + terbilang(angka % 1000000);
+            } else if (angka < 1000000000000) {
+                result = terbilang(Math.floor(angka / 1000000000)) + " Milyar" + terbilang(angka % 1000000000);
+            }
+            
+            return result;
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const receipt = document.getElementById('receipt');
+            
+            // Temporarily show receipt if hidden
+            const originalDisplay = receipt.style.display;
+            receipt.style.display = 'block';
+            
+            // Hide buttons during capture
+            const btnContainer = document.querySelector('.btn-container');
+            if(btnContainer) btnContainer.style.display = 'none';
+
+            html2canvas(receipt, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('Struk_PDAM.pdf');
+                
+                // Restore buttons
+                if(btnContainer) btnContainer.style.display = 'block';
+                receipt.style.display = originalDisplay;
+            }).catch(err => {
+                console.error("Error generating PDF:", err);
+                alert("Gagal mengunduh PDF.");
+                if(btnContainer) btnContainer.style.display = 'block';
+            });
+        }
+
+        function renderReceipt(data) {
+            try {
+                // No Bukti: Wfirstdata[1]/Wfirstdata[2]/CU
+                const noBukti = `${data.Wfirstdata[1]}/${data.Wfirstdata[2]}/CU`;
+                
+                // Tgl Bayar: Wtransdate (18/11/25 -> 18/11/2025)
+                // Assuming input is DD/MM/YY
+                const dateParts = data.Wtransdate.split('/');
+                const tglByr = `${dateParts[0]}/${dateParts[1]}/20${dateParts[2]}`;
+                
+                // ID Pelanggan
+                const idPelanggan = data.Wnarrativepsw1;
+                
+                let nama = "PT PELABUHAN INDONESIA"; 
+                let awal = "0";
+                let akhir = "0";
+                let airDipakai = "3400";
+                let bulanTag = "10 - 2025";
+                let kdTarif = "R2"; // Default
+
+                // Parsing Wseconddata
+                if (data.Wseconddata) {
+                    // Name extraction from Wseconddata[5]
+                    // Format 1: "1 PT PELABUHAN INDONESIA ( 2025100 K00       0       55087  "
+                    // Format 2: "1 GODLIEF FREDRIK NEONUFA  2025100 R30       0       2574   "
+                    if (data.Wseconddata[5]) {
+                        const line5 = data.Wseconddata[5];
+                        
+                        // Try to extract Name
+                        const nameMatch = line5.match(/1\s+(.*?)\s+\(/);
+                        if (nameMatch) {
+                            nama = nameMatch[1];
+                        } else {
+                             // Fallback: take string between "1 " and the first long number or tariff code
+                             // Looking for the first token that is a number > 4 digits or matches Tariff pattern
+                             const parts = line5.trim().split(/\s+/);
+                             let nameParts = [];
+                             for (let i = 1; i < parts.length; i++) { // Skip first "1"
+                                 if (/^\d{5,}$/.test(parts[i]) || /^[A-Z]\d+$/.test(parts[i])) {
+                                     break;
+                                 }
+                                 nameParts.push(parts[i]);
+                             }
+                             if (nameParts.length > 0) nama = nameParts.join(" ");
+                        }
+                        
+                        // Extract KD TARIF
+                        // Look for a token matching ^[A-Z]\d+$ (e.g., R30, R2)
+                        const parts = line5.trim().split(/\s+/);
+                        const foundTariff = parts.find(p => /^[A-Z]\d+$/.test(p));
+                        if (foundTariff) {
+                            kdTarif = foundTariff;
+                        }
+
+                        if (parts.length > 0) awal = parts[parts.length - 1];
+                    }
+
+                    // Meter Akhir & Air Dipakai from Wseconddata[6]
+                    if (data.Wseconddata[6]) {
+                        const line6Parts = data.Wseconddata[6].trim().split(/\s+/);
+                        if (line6Parts.length > 1) {
+                            akhir = line6Parts[0];
+                            airDipakai = line6Parts[1];
+                        }
+                    }
+                    
+                    // Bulan Tag from Wseconddata[7]
+                    // "5051100000  0     0     2025-10     0104010427     "
+                    if (data.Wseconddata[7]) {
+                         const line7Parts = data.Wseconddata[7].trim().split(/\s+/);
+                         const dateStr = line7Parts.find(p => p.match(/^\d{4}-\d{2}$/));
+                         if (dateStr) {
+                             const [y, m] = dateStr.split('-');
+                             bulanTag = `${m} - ${y}`;
+                         }
+                    }
+                }
+
+                let total = 0;
+                let tellerId = data.WRemoteAccNo;
+                let adminBankValue = parseInt(data.Wpbbalnc);
+                
+                // Check if Wseconddata[0] is IGATE
+                const isIGATE = data.Wseconddata && data.Wseconddata[0] && data.Wseconddata[0].toUpperCase().includes('IGATE');
+
+                if (isIGATE) {
+                    total = parseInt(data.Wtxamount) + 2500;
+                    tellerId = ""; // Hide Teller ID for IGATE
+                    adminBankValue = 2500; // Hardcode Admin Bank for IGATE
+                } else {
+                    total = parseInt(data.Wtxamount) + parseInt(data.Wpbbalnc);
+                }
+
+                const tagihan = formatCurrency(data.Wtxamount);
+                const adminBank = formatCurrency(adminBankValue);
+                const totalBayar = formatCurrency(total);
+                
+                const awalAkhir = `${awal} / ${akhir}`;
+                
+                // Populate DOM
+                document.getElementById('no_bukti').textContent = noBukti;
+                document.getElementById('tgl_byr').textContent = tglByr;
+                document.getElementById('id_pelanggan').textContent = idPelanggan;
+                document.getElementById('nama').textContent = nama;
+                document.getElementById('tagihan').textContent = tagihan;
+                document.getElementById('kd_tarif').textContent = kdTarif;
+                document.getElementById('awal_akhir').textContent = awalAkhir;
+                document.getElementById('air_dipakai').textContent = airDipakai;
+                document.getElementById('bulan_tag').textContent = bulanTag;
+                document.getElementById('admin_bank').textContent = adminBank;
+                document.getElementById('total_bayar').textContent = totalBayar;
+                document.getElementById('teller_id').textContent = tellerId;
+                document.getElementById('terbilang').textContent = terbilang(total) + " Rupiah";
+
+                document.getElementById('receipt').style.display = 'block';
+            } catch (e) {
+                console.error("Rendering error:", e);
+                alert("Error rendering receipt: " + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
